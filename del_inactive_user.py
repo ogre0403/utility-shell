@@ -1,5 +1,6 @@
 #!/usr/bin/python
-
+import MySQLdb
+import sys
 import os
 import shutil
 import time
@@ -9,7 +10,16 @@ from pwd import getpwuid
 
 HOME_DIR_BASE = "/home_i1/"
 SOFT_LIMIT_DAY = 14
+#---- mysql info ----
+mysqlIP = "140.110.8.201"
+mysqlName = "unix88e79d40d50a"
+mysqlPwd = "unix88e79d40d50a"
+dbName = "UNIX_USERS"
 
+userColName = "username"
+pwdColName = "password"
+tableName = "users_88e79d40d50a"
+#---- ---- ---- ----
 def main():
     nn = get_immediate_subdirectories(HOME_DIR_BASE)
     for x in nn:
