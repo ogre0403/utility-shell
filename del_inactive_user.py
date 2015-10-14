@@ -40,6 +40,7 @@ def main():
 				inactive = inactive_uid(cursor,x)
 	        		if inactive is not None and inactive is not 0:	isUserExist = False
 				else: isUserExist =True 
+				##### delete /home_i1/<username> here!!!! 
 				if check_expired(x,isUserExist):print "delete "+x
 
 			db.close()
