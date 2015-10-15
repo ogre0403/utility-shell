@@ -30,7 +30,7 @@ HOME_DIR_BASE = "/home_i1/"
 SOFT_LIMIT_DAY = 90
 SOFT_LIMIT_EPOCH = SOFT_LIMIT_DAY*86400
 LOGGING_FILE = 'del_inactive_user.log'
-logging.basicConfig(filename=LOGGING_FILE, level=logging.WARNING)
+logging.basicConfig(filename=LOGGING_FILE, level=logging.WARNING, format='%(asctime)s [%(levelname)s] %(message)s')
 
 
 def main():
