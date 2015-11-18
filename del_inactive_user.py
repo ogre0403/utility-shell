@@ -15,9 +15,16 @@ INDEX_PWD = "users.db_passwd"
 INDEX_TABLE = "users.table"
 INDEX_USER_COL = "users.user_column"
 INDEX_PWD_COL = "users.password_column"
+INDEX_PORT = "users.port"
 
-MysqlInfoMap = {INDEX_HOST: '', INDEX_DB: '', INDEX_USER: '', INDEX_PWD: '', INDEX_TABLE: '', INDEX_USER_COL: '',
-                INDEX_PWD_COL: ''}
+MysqlInfoMap = {INDEX_HOST: '',
+                INDEX_DB: '',
+                INDEX_USER: '',
+                INDEX_PWD: '',
+                INDEX_TABLE: '',
+                INDEX_USER_COL: '',
+                INDEX_PWD_COL: '',
+                INDEX_PORT: "3306"}
 
 MYSQL_INFO_FILE = "/etc/pam_mysql_arcp.conf"
 # ------sqlite info-------------
@@ -67,18 +74,33 @@ def parse_mysql_info(infile):
         for line in f:
             l = line.split('=')
             if len(l) == 2:
-                MysqlInfoMap[l[0]] =l[1].rstrip()
+                if l[0] == INDEX_HOST:
+                    ip_and_port = l[1].rstrip().split(':')
+                    MysqlInfoMap[INDEX_HOST] = ip_and_port[0]
+                    if len(ip_and_port) == 2 :
+                        MysqlInfoMap[INDEX_PORT] = ip_and_port[1]
+                else:
+                    MysqlInfoMap[l[0]] =l[1].rstrip()
 
 
 def connect_mysql():
     try:
-        return MySQLdb.connect(MysqlInfoMap[INDEX_HOST],MysqlInfoMap[INDEX_USER],MysqlInfoMap[INDEX_PWD],MysqlInfoMap[INDEX_DB])
+        return MySQLdb.connect(MysqlInfoMap[INDEX_HOST],
+                               MysqlInfoMap[INDEX_USER],
+                               MysqlInfoMap[INDEX_PWD],
+                               MysqlInfoMap[INDEX_DB],
+                               int(MysqlInfoMap[INDEX_PORT]))
     except:
         logging.error("mysql connection failed")
 
 
 def inactive_uid(cursor,username):
-    sql = "SELECT %s,%s FROM %s WHERE %s='%s' " %(MysqlInfoMap[INDEX_USER_COL],MysqlInfoMap[INDEX_PWD_COL],MysqlInfoMap[INDEX_TABLE],MysqlInfoMap[INDEX_USER_COL],username)
+    sql = "SELECT %s,%s FROM %s WHERE %s='%s' " \
+          %(MysqlInfoMap[INDEX_USER_COL],
+            MysqlInfoMap[INDEX_PWD_COL],
+            MysqlInfoMap[INDEX_TABLE],
+            MysqlInfoMap[INDEX_USER_COL],
+            username)
     try:
         cursor.execute(sql)
         results = cursor.fetchall()
@@ -92,7 +114,7 @@ def inactive_uid(cursor,username):
             logging.debug("uid = " + owner_uid)
             return owner_uid
     except:
-        logging.error("unable to fetch data")
+        logging.error("unable to fetch %s data" %(username))
 
 
 def check_expired(username, user_exist):
