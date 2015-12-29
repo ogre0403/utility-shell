@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-import json, requests, uuid
+import json, requests
 
 requests.packages.urllib3.disable_warnings()
 
@@ -11,7 +11,7 @@ w_setting['APP_PRIVATE_ID'] = 'c183df7a1f37423b9e4bcd091153b808'                
 w_setting['APP_PRIVATE_PASSWD'] = 'c629f93af7524a95a1a46b65f39b42f7'                # Hadoop 密碼
 w_setting['APP_UNIX_ACCOUNT_GROUP_UUID'] = "40a7b7b2-5b7f-4d69-b59e-88e79d40d50a"   # Unix 認證主機群組的唯一識別碼
 w_setting['APP_UNIX_ACCOUNT_GROUP_UUID_LIST'] = ["40a7b7b2-5b7f-4d69-b59e-88e79d40d50a"]
-w_gid_list = [];
+w_gid_list = []
 
 # WS-Z01-A0-01 : 進行應用系統身分認證
 # https://iam-api.nchc.org.tw/app/request_basic_authentication/
