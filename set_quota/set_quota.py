@@ -94,6 +94,17 @@ def setHDFSQuota(name, hdfs_quota_setting):
     logger.info("set %s HDFS quota <dir:%s, number:%s, space:%s>" % (name, fs, number, space))
 
     if is_windows() != True:
+        # create HDFS user home if not exist
+        if is_HDFS_dir_exist(fs) == False:
+            # sudo -u hdfs hadoop fs -mkdir /user/k00jmy00
+            sp = subprocess.Popen(['sudo', '-u', 'hdfs', 'hadoop', 'fs', '-mkdir', fs],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        close_fds=True)
+            stderr = sp.communicate()[1]
+            if sp.returncode != 0:
+                logger.error("set HDFS space quota fail with STDERR %s" % (stderr))
+
         # sudo -u hdfs hdfs dfsadmin -setQuota 10000 /user/k00jmy00
         sp = subprocess.Popen(['sudo', '-u', 'hdfs', 'hdfs', 'dfsadmin', '-setQuota', number, fs],
                               stdout=subprocess.PIPE,
@@ -131,6 +142,25 @@ def query_quota_info(auth_data, key2):
         logger.error("ERROR_CODE: %s" % (quota_result['ERROR_CODE']))
         logger.debug(json.dumps(quota_result))
         return None
+
+'''
+return True if dir exist
+Usage: hdfs dfs -test -[ezd] URI
+Options:
+-e check to see if the file exists. Return 0 if true.
+-z check to see if the file is zero length. Return 0 if true.
+-d check to see if the path is directory. Return 0 if true.
+'''
+def is_HDFS_dir_exist(dir):
+    sp = subprocess.Popen(['hdfs', 'dfs', '-test', '-e', dir],
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            close_fds=True)
+    sp.communicate()
+    if sp.returncode == 0:
+        return True
+    else:
+        return False
 
 
 def is_windows():
