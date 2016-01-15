@@ -25,15 +25,10 @@ def main():
     logger.info("Get SSO token")
     auth_data = basicAuth()
 
-    new_key, update_key = get_key2()
-    logger.info("Quota key2 <%s, %s>" %(new_key, update_key))
-
-    logger.info("Fetch new user quota setting")
-    new_result = query_quota_info(auth_data, new_key)
-    set_all_user_quota(new_result)
-    logger.info("Fetch update user quota setting")
-    update_result = query_quota_info(auth_data, update_key)
-    set_all_user_quota(update_result)
+    key2 = get_key2()
+    logger.info("Fetch quota setting with key2:{%s}" %(key2))
+    result = query_quota_info(auth_data, key2)
+    set_all_user_quota(result)
 
 
 def basicAuth():
@@ -60,30 +55,33 @@ def get_key2():
     yesterday_2100 = today_2100 - timedelta(1)
 
     if now < today_1200 and now < today_2100:
-        newkey = yesterday_2100.strftime('%Y%m%d%H%M')+":NEW"
-        updatekey = yesterday_2100.strftime('%Y%m%d%H%M')+":UPDATE"
+        key2 = yesterday_2100.strftime('%Y%m%d%H%M')
     elif now > today_1200 and now < today_2100:
-        newkey = today_1200.strftime('%Y%m%d%H%M')+":NEW"
-        updatekey = today_1200.strftime('%Y%m%d%H%M')+":UPDATE"
+        key2 = today_1200.strftime('%Y%m%d%H%M')
     elif now > today_1200 and now > today_2100:
-        newkey = today_2100.strftime('%Y%m%d%H%M')+":NEW"
-        updatekey = today_2100.strftime('%Y%m%d%H%M')+":UPDATE"
+        key2 = today_2100.strftime('%Y%m%d%H%M')
     else:
-        newkey = yesterday_2100.strftime('%Y%m%d%H%M')+":NEW"
-        updatekey = yesterday_2100.strftime('%Y%m%d%H%M')+":UPDATE"
+        key2 = yesterday_2100.strftime('%Y%m%d%H%M')
         logger.warn("should not be here")
 
-    return newkey, updatekey
+    return key2
 
 
+'''
+quota_setting is JSON ARRAY with following format:
+[{"k00jmy00":{"STATUS":"NEW","LOCALFS_QUOTA":{"filesystem":"/home_i1/","soft":"450","hard":"500"},"HDFS_QUOTA":{"filesystem":"/user/k00jmy00","number":"10000","space":"500"}}}]
+'''
 def set_all_user_quota(quota_setting):
     if quota_setting is not None:
-        for name, setting in quota_setting.items():
+        for user_setting in quota_setting:
+            name = user_setting.keys()[0]
+            setting = user_setting[name]
             setQuota(name, setting)
     else:
         logger.info("No NEW or UPDATE quota info")
 
 def setQuota(name, quota_setting):
+    logger.info("{%s} {%s} quota" % (name, quota_setting['STATUS']))
     setLocalFSQuota(name, quota_setting['LOCALFS_QUOTA'])
     setHDFSQuota(name, quota_setting['HDFS_QUOTA'])
 
