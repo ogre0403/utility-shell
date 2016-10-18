@@ -20,6 +20,9 @@ function add_NAT_rule(){
     echo 1 > /proc/sys/net/ipv4/ip_forward
 }
 
+function save_rule_to_iptables(){
+    service iptables save
+}
 
 case $1 in
     "add")
@@ -31,8 +34,12 @@ case $1 in
         clear_all_rule;
         echo "remove NAT rules "
     ;;
+    "save")
+	save_rule_to_iptables;
+	echo "save rule to iptables "
+    ;;
     *)
-        echo "Usage: ./NAT.sh [add|del]"
+        echo "Usage: ./NAT.sh [add|del|save]"
         exit 0
     ;;
 
