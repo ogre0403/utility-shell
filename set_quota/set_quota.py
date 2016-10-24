@@ -9,7 +9,7 @@ import os
 import datetime
 
 
-LOGGING_FILE = 'set_quota.log'
+LOGGING_FILE = '/etc/braavos/set_quota/set_quota.log'
 logging.basicConfig(filename=LOGGING_FILE,
                     level=logging.DEBUG,
                     format='%(asctime)s [%(levelname)s] %(filename)s_%(lineno)d  : %(message)s')
